@@ -1,38 +1,31 @@
 package main
 
 import (
-	"log"
-	"os"
+	"fmt"
+	"music-player/keyboard"
 	"time"
 
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/mp3"
-	"github.com/faiface/beep/speaker"
 )
 
 func main() {
-	file, err := os.Open("1.mp3")
-	if err != nil{
-		log.Fatal(err)
+	fmt.Println("Keyboard detection test running...")
+	fmt.Println("Press any key to test (will timeout after 10 seconds)")
+
+	for {
+		keyCode, detected, err := keyboard.KhbitUnix();
+		if err != nil {
+			fmt.Printf("err: %v", err)
+		}
+		if detected {
+			switch keyCode{
+			case 'q', 'Q': 
+				fmt.Println("You pressed Q and quit!")
+				return
+			}
+		}
+
+		time.Sleep(100 * time.Millisecond)
+		
+		fmt.Printf(".")
 	}
-
-	defer file.Close()
-
-	streamer, format, err := mp3.Decode(file)
-	if err != nil{
-		log.Fatal(err)
-	}
-	defer streamer.Close();
-
-	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	done := make(chan bool)
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-		done <- true
-	})))
-
-	<-done
 }
