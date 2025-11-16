@@ -20,7 +20,8 @@ func KhbitUnix() (byte, bool, error) {
 	)
 
 	if errno != 0 {
-		khbitFallback()
+		available := khbitFallback()
+		return 0, available, nil
 	}
 
 	oldTermios := termios
@@ -38,7 +39,8 @@ func KhbitUnix() (byte, bool, error) {
 	)
 
 	if errno != 0 {
-		khbitFallback()
+		available := khbitFallback()
+		return 0, available, nil
 	}
 
 	defer func () {
@@ -65,4 +67,9 @@ func khbitFallback() bool {
 
 	_, err := reader.Peek(1)
 	return err == nil
+}
+
+func IsKeyAvailable() bool {
+	_, available, _ := KhbitUnix()
+	return available
 }

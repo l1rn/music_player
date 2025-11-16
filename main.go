@@ -2,30 +2,36 @@ package main
 
 import (
 	"fmt"
-	"music-player/keyboard"
-	"time"
-
+	context "music-player/player"
 )
 
 func main() {
-	fmt.Println("Keyboard detection test running...")
-	fmt.Println("Press any key to test (will timeout after 10 seconds)")
+	kl := context.NewKeyboardLifecycle();
+
+	context.Start(kl)
+	defer context.Stop(kl)
+
+	keyEvents := kl.GetKeyEvents()
 
 	for {
-		keyCode, detected, err := keyboard.KhbitUnix();
-		if err != nil {
-			fmt.Printf("err: %v", err)
-		}
-		if detected {
-			switch keyCode{
-			case 'q', 'Q': 
-				fmt.Println("You pressed Q and quit!")
+		select {
+		case key, ok := <-keyEvents:
+			if !ok{
+				fmt.Println("Key events channel closed")
 				return
 			}
-		}
 
-		time.Sleep(100 * time.Millisecond)
-		
-		fmt.Printf(".")
+			fmt.Printf("Key pressed: %c (ASCII: %d, Hex: 0x%02x)\n", key, key, key)
+			
+			if key == 'q' || key == 'Q' {
+				fmt.Println("Quit key pressed, exiting...")
+				return
+			}
+
+		case <-kl.Done():
+			fmt.Println("Keyboard lifecycle ended")
+			return
+			
+		}	
 	}
 }
