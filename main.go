@@ -7,7 +7,6 @@ import (
 
 func main() {
 	kl := context.NewKeyboardLifecycle();
-
 	context.Start(kl)
 	defer context.Stop(kl)
 
@@ -26,6 +25,19 @@ func main() {
 			if key == 'q' || key == 'Q' {
 				fmt.Println("Quit key pressed, exiting...")
 				return
+			}
+
+			if key == 'k' || key == 'K' {
+				context.PlayerInit()
+				fmt.Println("Enjoy the sound!")
+			}
+			
+			if key == 's' || key == 'S' {
+				context.Pause()
+			}
+
+			if key == 'w' || key == 'W' {
+				context.Unpause()
 			}
 
 		case <-kl.Done():

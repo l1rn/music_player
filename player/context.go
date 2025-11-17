@@ -2,7 +2,6 @@ package context
 
 import (
 	"context"
-	"fmt"
 	"music-player/keyboard"
 	"time"
 )
@@ -72,7 +71,6 @@ func (kl *KeyboardLifecycle) lifecycleLoop() {
 			if available {
 				select {
 				case kl.keyEvents <- rune(key):
-					fmt.Printf("\033[24mHello world!\033[0m \n")
 				case <-kl.ctx.Done():
 					return
 				default:
