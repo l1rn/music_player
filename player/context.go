@@ -8,21 +8,21 @@ import (
 )
 
 type KeyboardLifecycle struct {
-	ctx			context.Context
-	cancel 		context.CancelFunc
-	keyEvents	chan rune
-	isRunning 	bool
-	stopChan 	chan struct{}
+	ctx       context.Context
+	cancel    context.CancelFunc
+	keyEvents chan rune
+	isRunning bool
+	stopChan  chan struct{}
 }
 
 func NewKeyboardLifecycle() *KeyboardLifecycle {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &KeyboardLifecycle{
-		ctx: 		ctx,
-		cancel: 	cancel,
-		keyEvents: 	make(chan rune, 100),
-		isRunning: 	false,
-		stopChan: 	make(chan struct{}, 1),
+		ctx:       ctx,
+		cancel:    cancel,
+		keyEvents: make(chan rune, 100),
+		isRunning: false,
+		stopChan:  make(chan struct{}, 1),
 	}
 }
 
@@ -52,16 +52,16 @@ func (kl *KeyboardLifecycle) Done() <-chan struct{} {
 }
 
 func (kl *KeyboardLifecycle) lifecycleLoop() {
-	defer func ()  {
+	defer func() {
 		kl.isRunning = false
 		close(kl.keyEvents)
 	}()
 
 	for {
-		select{
-		case <- kl.ctx.Done():
+		select {
+		case <-kl.ctx.Done():
 			return
-		case <- kl.stopChan:
+		case <-kl.stopChan:
 			return
 		default:
 			key, available, err := keyboard.KhbitUnix()
@@ -72,11 +72,11 @@ func (kl *KeyboardLifecycle) lifecycleLoop() {
 			if available {
 				select {
 				case kl.keyEvents <- rune(key):
-					fmt.Printf("\033[24mHello world!\033[0m \n");
+					fmt.Printf("\033[24mHello world!\033[0m \n")
 				case <-kl.ctx.Done():
 					return
 				default:
-					
+
 				}
 			} else {
 				time.Sleep(10 * time.Millisecond)
